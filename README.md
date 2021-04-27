@@ -33,7 +33,8 @@ Opcional si sale error eliminar los espacios con sed en la terminal de la tabla
           sed 's/ //g' metadata.tsv  
          
           
-## Creación del archivo manifiesto, este archivo contiene como estan escruturadas la lecturas 
+## Creación del archivo manifiesto
+Este archivo contiene las lecturas 
 
         nano manifest.csv 
         
@@ -51,8 +52,63 @@ Opcional si sale error eliminar los espacios con sed en la terminal de la tabla
           
           
  ## Importación del manifiesto
+ Aquí se importan las librarias 
  
          qiime tools import --type 'SampleData[PairedEndSequencesWithQuality]' --input-path manifest.csv --output-path raw-seqs.qza --input-format PairedEndFastqManifestPhred33
+
+
+## Desreplicación y QC con dada2
+        
+        qiime dada2 denoise-paired --i-demultiplexed-seqs raw-seqs.qza --p-trunc-len-f 250 --p-trunc-len-r 250 --p-trunc-q 10 --o-representative-sequences rep-seqs.qza --o-table rep-table.qza --output-dir rep
+        
+        
+## Descarga de la base de datos
+Diferentes base de datos 
+        
+        wget -O "gg-13-8-99-515-806-nb-classifier.qza" "https://data.qiime2.org/2019.4/common/gg-13-8-99-515-806-nb-classifier.qza"
+        
+Cambiar de nombre 
+
+        mv gg-13-8-99-515-806-nb-classifier.qza gg13_16S.qza
+ 
+ Aquí se debe descargar la versión de la base de datos actual para no tener errores, por lo tanto el link anterior puede cambiar 
+        
+     
+## Asignación taxonómica
+
+Se realiza la asignación taxonómica 
+
+        qiime feature-classifier classify-sklearn --i-classifier gg13_16S.qza --i-reads rep-seqs.qza --o-classification taxonomy.qza
+ 
+Selección del Nivel taxonómico 
+ 
+         qiime taxa collapse --i-table table.qza  --i-taxonomy taxonomy.qza --p-level 6 --output-dir taxtable
+         
+
+## Exportación de datos
+
+                
+       qiime metadata tabulate --m-input-file taxonomy.qza --o-visualization taxonomy.qzv
+       
+Gráfico de barras
+
+       qiime taxa barplot --i-table rep-table.qza --i-taxonomy taxonomy.qza --m-metadata-file metadata.tsv --o-visualization taxa-barplot.qzv
+
+         
+
+
+
+     
+
+
+
+
+
+
+
+
+ 
+
 
 
 
